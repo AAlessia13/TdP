@@ -1,0 +1,75 @@
+--- CASO YEAR-SHAPE SENZA PESO ---
+
+    def buildGraph(self,year,shape):
+        self._grafo.clear()
+
+        nodes = DAO.getAllSighting(year,shape)
+        self._grafo.add_nodes_from(nodes)
+
+        for node in nodes:
+            self._idMap[node.id] = node
+
+        edges = DAO.getAllEdges(year,shape,self._idMap)
+
+        for edge in edges:
+            if self._grafo.has_edge(edge.s1,edge.s2):
+                return
+            else:
+                self._grafo.add_edge(edge.s1,edge.s2)
+
+
+--- CASO MANUALE ---
+
+
+    def buildGraph(self,year,state):
+        self._grafo.clear()
+
+        self.nodes = DAO.getAllNodes(year,state)
+        self._grafo.add_nodes_from(self.nodes)
+
+        for i in range(0,len(self.nodes)-1):
+            for j in range(i+1,len(self.nodes)):
+                if self.nodes[i].shape == self.nodes[j].shape and self.nodes[i].distance_HV(self.nodes[j]) < 100:
+                    self._grafo.add_edge(self.nodes[i],self.nodes[j])
+
+
+--- CASO YEAR-SHAPE CON PESO ---
+
+
+    def buildGraph(self,year: int,shape: str):
+        self._grafo.clear()
+        self._nodes = DAO.getAllNodes(year,shape)
+        print( self._nodes)
+
+        self._grafo.add_nodes_from( self._nodes)
+
+        for node in self._grafo.nodes:
+            self.idMap[node.id] = node
+
+        edges = DAO.getAllEdges(year,shape,self.idMap)
+
+        for edge in edges:
+            if self._grafo.has_edge(edge.d1,edge.d2):
+                pass
+            else:
+                self._grafo.add_edge(edge.d1,edge.d2,weight = edge.weight)
+
+
+--- CASO QUERY PESO DIVERSA DA QUERY EDGES ---
+
+23-07-201
+
+    def buildGraph(self,year,gg):
+        self.nodes = DAO.getAllNodes()
+        self.grafo.add_nodes_from(self.nodes)
+
+        for node in self.nodes:
+            self.idMap[node.id] = node
+
+        edges = DAO.getAllEdges(self.idMap)
+
+        for edge in edges:
+            if self.grafo.has_edge(edge.s1,edge.s2):
+                return
+            else:
+                self.grafo.add_edge(edge.s1,edge.s2,weight DAO.getAllWeight(edge.s1.id,edge.s2.id,year,int(gg)))

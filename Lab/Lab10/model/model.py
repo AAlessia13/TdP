@@ -9,7 +9,6 @@ class Model:
             self._idMap[country.CCode] = country
 
 
-
     def creaGrafo(self, anno):
         self._graph = nx.Graph()
 

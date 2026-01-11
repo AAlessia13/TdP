@@ -8,6 +8,7 @@ class Model:
         self._mapProducts = {}
         for p in self._products:
             self._mapProducts[p.Product_number] = p
+
         self._solMigliore = 0
         self._camminoMigliore = []
 

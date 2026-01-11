@@ -1,0 +1,72 @@
+--- PRENDE DISTINTAMENTE TUTTI GLI ANNI ORDINATI IN MODO DECRESCENTE ---
+
+    @staticmethod
+    def getYears():
+        cnx = DBConnect.get_connection()
+        result = []
+        if cnx is None:
+            print("Connessione fallita")
+        else:
+            cursor = cnx.cursor(dictionary=True)
+            query = """select distinct year(s.`datetime`) as year
+                        from sighting s
+                        order by year(s.`datetime`) desc
+"""
+            cursor.execute(query)
+            for row in cursor:
+                result.append(row['year'])
+            cursor.close()
+            cnx.close()
+        return result
+
+
+--- SELEZIONA DISTINTAMENTE TUTTE LE FORME IN UN ANNO SPECIFICATO ESCLUDENDO VALORI NULLI O STRINGHE VUOTE ORDINATE ALFABETICAMENTE ---
+
+
+    @staticmethod
+    def getShapes(year):
+        cnx = DBConnect.get_connection()
+        result = []
+        if cnx is None:
+            print("Connessione fallita")
+        else:
+            cursor = cnx.cursor(dictionary=True)
+            query = """select distinct s.shape as forma
+                        from sighting s
+                        where s.shape != ''
+                        and s.shape is not null
+                        and year(`datetime`) = %s
+                        order by shape asc
+    """
+            cursor.execute(query,(year,))
+            for row in cursor:
+                result.append(row['forma'])
+            cursor.close()
+            cnx.close()
+        return result
+
+
+--- SELEZIONA DISTINTAMENTE GLI STATI RELATIVI ALL'ANNO CONSIDERATO ORDINATI ALFABETICAMENTE ---
+
+
+
+    @staticmethod
+    def getStates(year):
+        cnx = DBConnect.get_connection()
+        result = []
+        if cnx is None:
+            print("Connessione fallita")
+        else:
+            cursor = cnx.cursor(dictionary=True)
+            query = """select distinct st.Name as stati
+                        from sighting si,state st
+                        where year (si.`datetime`) = %s
+                        and si.state = st.id
+                        order by st.Name asc
+    """
+            cursor.execute(query,(year,))
+            for row in cursor:
+                result.append(row['stati'])
+            cursor.close()
+            cnx.close()
+        return result

@@ -1,0 +1,136 @@
+QUERY
+
+---- Lab13-simulazione-esame: ----
+
+VERTICI: sono tutti gli stati presenti nella tabella “state”.
+
+ARCHI: Un arco collega due stati solo se sono confinanti, come indicato nella tabella “neighbor”.
+
+select n.state1,n.state2,count(*) as weight
+from neighbor n,sighting s
+where  (n.state1= s.state  or n.state2= s.state)    ----> archi e peso
+and n.state1 < n.state2
+and year(s.`datetime`) = %s
+and s.shape = %s
+group by n.state1,n.state2
+
+PESO: Il peso dell’arco viene calcolato come il numero di avvistamenti che hanno la stessa forma (colonna “shape”) selezionata dal menù a tendina Forma, e che si sono verificati nello stesso anno selezionato (da estrarre dalla colonna “datetime”), nei due stati considerati
+
+---- 04-07-2024---- A
+
+I VERTICI: cui vertici siano tutti gli avvistamenti presenti nella tabella “sighting” che  siano avvenuti nell’anno selezionato dall’utente e con la shape desiderata.
+
+ARCHI: siste se e solo se tali avvistamenti sono avvenuti nello stesso stato. L’arco è uscente dall’avvistamento che è avvenuto temporalmente prima ed entrante nell’avvistamento avvenuto dopo.
+
+select t1.id as s1,
+t1.datetime as data1,
+t2.id as s2,
+t2.datetime as data2
+from
+(select *			----> archi
+ from sighting s
+ where year(datetime) = %s
+ and shape = %s) t1,
+(select *
+ from sighting s
+ where year(datetime) = %s
+ and shape = %s) t2
+ where t1.state = t2.state
+ and t1.datetime < t2.datetime
+
+---- 04-07-2024---- B
+
+I VERTICI: utti gli avvistamenti presenti nella tabella “sighting” che siano avvenuti nell’anno selezionato dall’utente e nello stato indicato.
+
+SELECT *
+FROM sighting s
+WHERE Year(s.datetime)=%s AND s.state =%s
+ORDER BY s.datetime ASC
+
+ARCHI: Solo se tali avvistamenti hanno la
+stessa Forma (colonna “shape” del db) e sono avvenuti ad una distanza inferiore a 100km. Per calcolare la distanza in km tra due avvistamenti utilizzare il metodo distance_HV già fornito nella classe Sighting.
+
+ # calcolo degli edges in modo programmatico
+
+        for i in range(0, len(self._nodes) - 1):
+            for j in range(i + 1, len(self._nodes)):
+                if self._nodes[i].shape == self._nodes[j].shape and self._nodes[i].distance_HV(self._nodes[j]) < 100:
+                    self._grafo.add_edge(self._nodes[i], self._nodes[j])
+
+
+---- 04-07-2024---- C
+
+I VERTICI: tutti gli avvistamenti presenti nella tabella “sighting” che siano avvenuti nell’anno selezionato dall’utente e con la forma desiderata.
+
+ARCHI: se e solo se tali avvistamenti sono avvenuto nello stesso stato (colonna “state” del db). L’arco è uscente dall’avvistamento che è avvenuto in una località con Longitudine minore ed entrante nella località a Longitudine maggiore
+
+PESO: è pari alla differenza in Longitudine tra nodo di arrivo e nodo di partenza. (Esempio. Se nodo A ha Longitudine -123.0 e nodo B ha longitudine -47 l’eventuale arco sarà diretto da A verso B ed avrà peso 76)
+
+select t1.id as id1,t2.id as id2,(t2.longitude - t1.longitude) as weight
+from(
+select s.id,s.state,s.longitude
+FROM sighting s
+where year(s.`datetime`) = %s
+and shape = %s) as t1,
+(select  s.id,s.state,s.longitude
+FROM sighting s
+where year(s.`datetime`) = %s
+and shape = %s) as t2
+where t1.longitude < t2.longitude
+and t1.state = t2.state
+
+
+--- 11-06-2018 ---
+
+NODI: gli stati americani (o meglio, il sottoinsieme di stati in cui vi è stato almeno un
+avvistamento nell'anno).
+
+ARCHI: del grafo rappresentano l'ordine temporale degli avvistamenti. In particolare, ci dovrà essere un arco tra lo stato A e lo stato B se almeno un avvistamento in B è  temporalmente successivo ad almeno un avvistamento in A (sempre nell'anno di riferimento).
+
+
+select t1.id as id1,t2.id as id2
+from
+(select distinct s2.id ,s.datetime
+from sighting s,state s2
+where s.state = s2.id
+and year(s.`datetime`) = %s) as t1,
+(select distinct s2.id ,s.datetime
+from sighting s,state s2
+where s.state = s2.id
+and year(s.`datetime`) = %s) as t2
+where t1.datetime < t2.datetime
+group by t1.id,t2.id
+
+
+--- 23-07-2018 --- B
+
+
+VERTICI: tutti gli stati presenti nella tabella “state”
+
+ARCHI: arco collega due stati solo se sono confinanti, come indicato nella tabella “neighbor”.
+
+PESO:  la somma del numero di avvistamenti verificatisi nei due stati considerati, purché che si siano verificati al massimo ad una distanza di xG giorni nell’anno selezionato (da estrarre dalla colonna “datetime”) da un avvistamento nell’altro stato.
+Utilizzare la funzione DATEDIFF di mysql per calcolare la differenza in giorni tra campi datetime.
+Es. DATEDIFF("1964-06-15 13:00:00", "1964-04-15 22:00:00")
+
+
+select  s1.id as s1,s2.id as s2
+from state s1,state s2,neighbor n
+where s1.id = n.state1
+and s2.id = n.state2
+and s1.id < s2.id
+group by s1.id,s2.id
+
+
+SELECT count(*) as peso
+    FROM (
+        SELECT *
+        FROM sighting s
+        WHERE state = 'NY' AND year(`datetime`) = 2010
+    ) AS avv1
+    JOIN (
+        SELECT *
+        FROM sighting s
+        WHERE state ='PA' AND year(`datetime`) = 2010
+    ) AS avv2
+    ON DATEDIFF(avv1.`datetime`, avv2.`datetime`) < 100

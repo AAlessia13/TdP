@@ -1,6 +1,5 @@
 import copy
 import itertools
-
 import networkx as nx
 
 from Classroom.Baseball.database.DAO import DAO

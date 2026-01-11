@@ -3,7 +3,6 @@ import flet as ft
 import model as md
 
 class SpellChecker:
-
     def __init__(self, view):
         self._multiDic = md.MultiDictionary()
         self._view = view
@@ -125,8 +124,6 @@ class SpellChecker:
         self._view._lvOut.controls.append(ft.Text(f'Time requested with the {searchType} research: {time}'))
 
         self._view.update()
-
-
 
 def replaceChars(text):
     chars = "\\`*_{}[]()>#+-.!$?%^;,=_~"

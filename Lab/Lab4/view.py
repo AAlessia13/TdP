@@ -82,6 +82,7 @@ class View(object):
         self.page.update()
     def setController(self, controller):
         self.__controller = controller
+
     def theme_changed(self, e):
         """Function that changes the color theme of the app, when the corresponding
         switch is triggered"""

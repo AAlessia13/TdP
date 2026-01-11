@@ -1,6 +1,5 @@
 import flet as ft
 
-
 class View(ft.UserControl):
     def __init__(self, page: ft.Page):
         super().__init__()
@@ -31,7 +30,6 @@ class View(ft.UserControl):
         #ROW with some controls
         # text field for the name
         self._ddyear = ft.Dropdown(label="Anno")
-
         self._ddcolor = ft.Dropdown(label="Colore")
 
         # button for the "creat graph" reply

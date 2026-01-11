@@ -1,0 +1,267 @@
+--- NUMERO DI COMPONENTI DEBOLMENTE CONNESSE ---
+--- COMPONENTE CONNESSA DI DIMENSIONE MAGGIORE ---
+
+ESAME 04/07/224 A
+
+Stampare il numero di componenti debolmente connesse. Inoltre, identificare la componente connessa di dimensione maggiore, e stamparne i nodi – includendo il dettaglio della città in cui è avvenuto l’avvistamento e la data.
+
+
+    def getTotComponentiConnessione(self):
+        comp_conn =  list(nx.weakly_connected_components(self._grafo))
+        return len(comp_conn)
+
+    def largestConnessa(self):
+        conn = list(nx.weakly_connected_components(self._grafo))
+        conn.sort(key = lambda x:len(x),reverse=True)
+        return conn[0]
+
+
+--- X ARCHI DI DIMENSIONE MAGGIORE ---
+
+ESAME 04/07/224 C
+
+Stampare i 5 archi di peso maggiore, ordinati in ordine decrescente di peso (vedere esempi di soluzione). Per ognuno di questi 5 archi stampare l’id del nodo di origine, l’id del nodo di destinazione, ed il peso
+
+
+    def getBestWeight(self):
+        result = []
+
+        for edge in self._grafo.edges.values():
+            result.append((edge[0],edge[1],edge['weight']))
+
+        result.sort(key = lambda x:x[2],reverse=True)
+
+        return result[0:5]
+
+
+--- SOMMA PESI ARCHI ADIACENTI PER OGNI NODO ---
+
+LAB13-SIMULAZIONE-ESAME
+
+Stampare per ogni stato la somma dei pesi degli archi adiacenti.
+
+
+    def getSumPesiEdgesAdiacenti(self):
+        result = []
+        for node in self.graph:
+            score = 0
+            for v in self.graph.neighbors(node):
+                score += self.graph[node][v]['weight']
+            result.append((node.id,score))
+        return result
+
+
+--- NODI PRESENTI IN PIù DI UNO DI X ARCHI ---
+
+
+LAB11_FATTOIO
+
+Tra i vertici di questi tre archi, stampare i prodotti che sono presenti in più di uno dei tre archi.
+Esempio: se i tre archi sono A <-> C, A<->B, C<->D, i prodotti da stampare sono A, C.
+
+
+
+    def getBiggestEdges(self):
+        result = []
+        for n1 in self.grafo.nodes:
+            for n2 in self.grafo.nodes:
+                if (self.grafo.has_edge(n1,n2)) and (n1.Product_number,n2.Product_number,self.grafo[n1][n2]['weight']) not in result and n1.Product_number < n2.Product_number:
+                    result.append((n1.Product_number,n2.Product_number,self.grafo[n1][n2]['weight']))
+
+        result.sort(key=lambda x: x[2], reverse=True)
+
+        nodes_count = {}
+        top_edges = result[:3]
+
+        for e in top_edges:
+            n1,n2,weight = e
+            nodes_count[n1] = nodes_count.get(n1,0) + 1
+            nodes_count[n2] = nodes_count.get(n2,0) + 1
+
+        nodi_ripetuti = {}
+
+        for node,count in nodes_count.items():
+            if count > 1:
+                nodi_ripetuti[node] = count
+
+        return result[:3],nodi_ripetuti
+
+
+--- PERCORSO TRA DUE NODI ---
+
+FLIGHTDELAYS
+
+verificare se è possibile raggiungere l’aeroporto di arrivo a partire da quello di partenza
+stampare un possibile percorso (se esiste) tra i due aeroporti.
+
+    def connessi(self, airport):
+        lista = list(self.graph.neighbors(airport))
+        result = []
+        for nodo in lista:
+            result.append((nodo, self.graph[airport][nodo]['weight']))
+        result.sort(key=lambda x: x[1],
+                         reverse=True)
+        return result
+
+
+--- VERTICI GRAFO CON MAGGIOR NUMERO DI VICINI ---
+
+NYC-HOTSPOTS
+
+rovare e stampare i vertici del grafo che hanno il maggior numero di vicini. Per ogni vertice, stampare il nome della località e il numero (massimo) di vicini.
+
+
+    def getMostViciniEdges(self):
+        result = []
+
+        for n in self._grafo.nodes:
+            result.append((n,len(list(self._grafo.neighbors(n)))))
+
+        result.sort(key = lambda x:x[1], reverse=True)
+        return result
+
+
+10) ARTSMIA
+
+
+--- COMPONENTE CONNESSA DEL NODO E STAMPA NUMERO DI VERTICI CHE LA COMPONGONO--
+--- SUCCESSORI E PREDECESSORI DI V0 ---
+--- NODI DI ALBERO DI VISITA ---
+
+
+
+Premendo il pulsante “Componente Connessa”, determinare la componente connessa del grafo che contiene
+il vertice selezionato precedentemente e stampare il numero di vertici che la compongono.
+
+
+def getConnessa(self, v0int):
+        v0 = self._idMap[v0int] ---> devo associare un valore cosi da ottenere 				     il valore del nodo
+
+for v in self.grafo.nodes:
+	connComp = nx.node_connected_component(self.grafo,v)
+
+return len(connComp)
+
+
+#Modo1: successori di v0 in DFS
+
+        successors = nx.dfs_successors(self._grafo, v0)
+        allSucc = []
+        for v in successors.values():
+            allSucc.extend(v)
+
+        print(f"Metodo 1 (pred): {len(allSucc)}")
+
+        #Modo2: predecessori di v0 in DFS
+
+        predecessors = nx.dfs_predecessors(self._grafo, v0)
+        print(f"Metodo 2 (succ): {len(predecessors.values())}")
+
+        #Modo3: conto i nodi dell'albero di visita
+
+        tree = nx.dfs_tree(self._grafo, v0)
+        print(f"Metodo 3 (tree): {len(tree.nodes)}")
+
+
+
+
+--- NUMERO DI ARCHI CON PESO MAGGIORE E MINORE DI UN VALORE SOGLIA ---
+--- VERTICI CON VALORE MAX E MIN DEL PESO DEGLI ARCHI ---
+
+LAB14-SIMULAZIONE-ESAME
+
+Alla pressione del bottone “Conta archi” stampare il numero di archi il cui peso è <S, ed il numero di archi il cui peso è >S.
+
+
+    def getContaArchi(self,soglia):
+
+        self.count_min = 0
+        self.count_max = 0
+        for edge in self._grafo.edges.values():
+            if soglia > edge['weight']:
+                self.count_min += 1
+            else:
+                self.count_max += 1
+
+        return self.count_min,self.count_max
+
+
+
+i valori minimo e massimo dei pesi degli archi.
+
+
+    def getGraphDetails(self):
+        val_max = max(self._grafo.edges.values(), key = lambda l: (l['weight']))
+        val_min = min(self._grafo.edges.values(), key = lambda l: (l['weight']))
+
+        max_weight_str = str(val_max['weight'])
+        min_weight_str = str(val_min['weight'])
+
+        return len(self._grafo.nodes),len(self._grafo.edges),max_weight_str,min_weight_str
+
+
+
+--- COMPONENTE CONNESSA DI UN VERTICE ---
+
+ITUNES
+
+
+La dimensione della componente connessa a cui appartiene il vertice 1;
+
+la durata complessiva (in minuti) di tutti gli album appartenenti alla componente connessa di a1.
+
+
+    def getConnessaDetails(self,v0):
+        conn = nx.node_connected_component(self._grafo,v0)
+        totDurata = 0
+
+        for album in conn:
+            totDurata += totMinutes(album.totD)
+        return len(conn),totDurata
+
+
+--- ARCHI ADIACENTI AD UN NODO CON IL PESO ORDINATI DECRESCENTEMENTE ---
+
+
+Permettere all’utente di selezionare, attraverso un secondo menu a tendina, una delle squadre esistenti nel grafo, ed alla pressione del bottone “Dettagli” stampare per tale squadra l’elenco delle squadre adiacenti, ed il peso degli archi corrispondenti, in ordine decrescente di peso
+
+
+    def getSortedNeighborns(self,n0):
+
+        result = []
+        for n in self._grafo.neighbors(n0):
+            result.append((n, self._grafo[n0][n]["weight"]))
+        result.sort(key = lambda x: x[1], reverse = True)
+        return result
+
+
+
+--- NODI SUCCESSIVI E PRECEDENTI DI UN CERTO VERTICE ---
+
+11/06/2018
+
+
+        for state in states:
+            self.name_to_id[state.Name] = state  ---> associo il nome al valore 						      del nodo
+            print(self.name_to_id[state.Name])
+
+
+    def predStato(self,name):
+        v0 = self.name_to_id[name]
+        pred = nx.dfs_predecessors(self.grafo,v0)
+        allPred = []
+
+        for v in pred.values():
+            allPred.append(v)
+
+        return allPred
+
+    def succStato(self,name):
+        v0 = self.name_to_id[name]
+        succ = nx.dfs_successors(self.grafo,v0)
+        allSucc= []
+
+        for v in succ.values():
+            allSucc.extend(v)
+
+        return allSucc

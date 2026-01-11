@@ -1,0 +1,156 @@
+Studio del Database (Formula1) : ore 18
+    a) importare il DB in DBeaver --> lunedì mattina, lab politecnico capire come fare
+    b) guardare tabelle, chiavi primarie ed esterne --> pre esame (a casa)
+    c) capire cosa rappresentano gli oggetti e che relazione hanno --> pre esame (a casa)
+-------------------------------------------------------------------------------------------
+Capire quali entità diventano nodi del grafo e quali diventano archi
+
+1) DAO
+Parla con il database, restituisce DTO o tipi semplici
+Prima si scrive la query SU DBeaver, poi la si copia nel DAO
+
+        from (Lab.Lab12.)database.DB_connect import DBConnect
+        from (Lab.Lab12.)model.retailer import Retailer (uguale per altre DTO)
+
+        class DAO():
+            def __init__(self):
+                pass
+
+            @staticmethod
+            def getRetailers(): *
+                cnx = DBConnect.get_connection()
+                if cnx is None:
+                    print("Errore connessione")
+                    return
+                else:
+                    cursor = conx.cursor(dictionary=True)
+                    query = """ SELECT
+                                FROM
+                                WHERE
+                                GOUP BY
+                                ORDER BY
+                                COUNT, SUM, AVG
+                                JOIN  """  *
+
+                    cursor.execute(query) *
+                    result = []
+                    for row in cursor:
+                        result.append(Retailer(**row)) *
+                    cursor.close()
+                    conn.close()
+                    return result
+
+        if __name__ == "__main__":
+            dao = DAO()
+
+2) DTO = NODI
+Nella cartella model si creano delle classi semplicissime: niente logica/query, solo dati
+Il tipo di dato per ogni attributo della classe si vede da DBeaver --> pre esame (a casa)
+
+        from dataclasses import dataclass
+        @dataclass
+        class Retailer:
+            Retailer_code: int
+            Retailer_name: str
+            Type: str
+            Country: str
+
+            def __hash__(self):
+                return hash(self.Retailer_code) #chiave primaria (id)
+
+            def __str__(self):
+                return self.Retailer_name #nome
+
+3) Model
+
+        import networkx as nx
+        from (Lab.Lab12.)database.DAO import DAO
+
+        class Model:
+            def __init__(self):
+                self.graph = nx.Graph() (non orientato) / nx.DiGraph() (orientato)
+                self.retailers = DAO.getRetailers()
+                self.idMap = {}
+                for r in self.retailers:
+                    self.idMap[r.Retailer_code] = r
+
+            def buildGraph(self, year, country): # menù a tendina
+                self.graph.clear()
+
+                #nodi : i nodi sono quasi sempre una tabella principale/ una colonna chiave
+                for r in self.retailers:
+                    if r.Country == country:
+                        self.graph.add_node(r)
+
+                # archi : gli archi possono essere relazione DB, distanza, peso calcolato, condizione
+                edges = DAO.getEdges(year, country, self.idMap)
+                for edge in edges:
+                    self.graph.add_edge(edge.r1, edge.r2, weight=edge.peso)
+
+                # per stampare numero nodi e archi
+                return self.getNumNodi(), self.getNumArchi()
+
+            def getNumNodi(self):
+                return len(self.graph.nodes)
+
+            def getNumArchi(self):
+                return len(self.graph.edges)
+
+Nel model troviamo anche
+
+a) Cammini minimi
+        nx.shortest_path(self._graph, source, target, weight="weight")
+        nx.shortest_path_length(self._graph, source, target, weight="weight")
+
+b) Componenti connesse
+        nx.connected_components(self._graph)
+
+c) DFS / Backtracking (RICORSIONE)
+    Quasi sempre per:
+    - trovare cammini ottimali
+    - massimizzare/minimizzare un valore
+
+    Struttura standard da MEMORIZZARE:
+
+        def _ricorsione(self, parziale, best):
+            if condizione_fine:
+                if migliore(parziale, best):
+                    best = parziale.copy()
+                return best
+
+            for scelta in scelte_possibili:
+                if ammissibile(scelta):
+                    parziale.append(scelta)
+                    best = self._ricorsione(parziale, best)
+                    parziale.pop()
+
+            return best
+
+
+4) Controller
+Prende input, chiama Model e stampa output
+Istruzioni per rimpire menù tendina / bottoni
+
+        ...
+        import flet as ft
+        from (Lab.Lab12.)UI.view import View
+        from (Lab.Lab12.)model.model import Model
+
+        Class Controller:
+            def __init__(self, view: View, model: Model):
+                # the view, with the graphical elements of the UI
+                self._view = view
+                # the model, which implements the logic of the program and holds the data
+                self._model = model
+
+5) View
+
+        import flet as ft
+
+        class View(ft.UserControl):
+            def __init__(self, page: ft.Page):
+                super().__init__()
+                # page stuff
+                ...
+
+

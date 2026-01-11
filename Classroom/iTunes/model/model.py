@@ -1,5 +1,4 @@
 import copy
-
 import networkx as nx
 from Classroom.iTunes.database.DAO import DAO
 
@@ -7,6 +6,7 @@ class Model:
     def __init__(self):
         self.graph = nx.Graph()
         self._idMap = {}
+
         self._bestSet = None
         self._bestScore = 0
 

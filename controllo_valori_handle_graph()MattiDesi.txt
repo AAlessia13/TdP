@@ -1,0 +1,45 @@
+--- CONTROLLO YEAR-SHAPE ---
+
+   self._view.txt_result.controls.clear()
+        if self._view.ddyear.value is None or self._view.ddshape.value is None:
+            self._view.txt_result.controls.append(ft.Text("Inserisci una forma e un anno!", color='red'))
+            self._view.update_page()
+            return
+        flag = self._model.buildGraph(self._view.ddyear.value, self._view.ddshape.value)
+        if flag:
+            result = self._model.getGraphDetails()
+            for r in result:
+                self._view.txt_result.controls.append(ft.Text(r))
+            self._view.update_page()
+            return
+        else:
+	     self._model.buildGraph(self._view.ddyear.value, self._view.ddshape.value)
+
+--- CONTROLLO YEAR-STATE ---
+
+self._view.txt_result1.controls.clear()
+        if self._view.ddyear.value is None or self._view.ddstate.value is None:
+            self._view.txt_result1.controls.append(ft.Text("Inserisci uno stato e un anno!", color='red'))
+            self._view.update_page()
+            return
+        flag = self._model.buildGraph(self._view.ddyear.value, self._view.ddstate.value)
+
+
+--- CONTROLLO DI UN NUMERO INSERITO NEL TXTIN ---
+
+
+annoStr = self._view._txtAnno.value
+
+if annoStr == "":
+	 self._view.txt_result.controls.clear()
+            self._view.txt_result.append(ft.Text(f"anno non inserito"))
+            self._view.update_page()
+            return
+        try:
+           anno = int(annoStr)
+        except ValueError:
+            self._view._txt_result.controls.clear()
+            self._view._txt_result.controls.append(
+                ft.Text("il valore inserito non è un intero"))
+            self._view.update_page()
+            return

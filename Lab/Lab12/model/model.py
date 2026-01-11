@@ -1,8 +1,8 @@
 import copy
 
 import networkx as nx
-
 from Lab.Lab12.database.DAO import DAO
+
 class Model:
     def __init__(self):
         self.countries = None

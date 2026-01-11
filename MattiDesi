@@ -1,0 +1,72 @@
+- query.txt : dare un occhio ma adattare al DB Formula1
+- DAO.txt: struttura dao + ulteriori query
+
+1) Menù a tendina (fillDD.txt)
+    a) --- RIEMPIRE IL DROPDOWN YEAR-SHAPE ---
+    b) --- RIEMPIRE IL DROPDOWN YEAR-STATE ---
+
+2) Grafo
+     --- buildGraph().txt --- MODEL
+        a) --- CASO YEAR-SHAPE SENZA PESO ---
+        b) --- CASO MANUALE ---
+        c) --- CASO YEAR-SHAPE CON PESO ---
+        d) --- CASO QUERY PESO DIVERSA DA QUERY EDGES ---
+
+     --- controllo_valori_handle_graph() --- CONTROLLER
+        a) --- CONTROLLO YEAR-SHAPE ---
+        b) --- CONTROLLO YEAR-STATE ---
+        c) --- CONTROLLO DI UN NUMERO INSERITO NEL TXTIN ---
+
+
+3) Ultime richieste
+    a) --- NUMERO DI COMPONENTI DEBOLMENTE CONNESSE ---
+       --- COMPONENTE CONNESSA DI DIMENSIONE MAGGIORE ---
+
+    b) --- X ARCHI DI DIMENSIONE MAGGIORE ---
+
+    c) --- SOMMA PESI ARCHI ADIACENTI PER OGNI NODO ---
+
+    d) --- NODI PRESENTI IN PIù DI UNO DI X ARCHI ---
+
+    e) --- PERCORSO TRA DUE NODI ---
+
+    f) --- VERTICI GRAFO CON MAGGIOR NUMERO DI VICINI ---
+
+    g) --- COMPONENTE CONNESSA DEL NODO E STAMPA NUMERO DI VERTICI CHE LA COMPONGONO--
+       --- SUCCESSORI E PREDECESSORI DI V0 ---
+       --- NODI DI ALBERO DI VISITA ---
+
+    h) --- NUMERO DI ARCHI CON PESO MAGGIORE E MINORE DI UN VALORE SOGLIA ---
+       --- VERTICI CON VALORE MAX E MIN DEL PESO DEGLI ARCHI ---
+
+    i) --- COMPONENTE CONNESSA DI UN VERTICE ---
+
+    l) --- ARCHI ADIACENTI AD UN NODO CON IL PESO ORDINATI DECRESCENTEMENTE ---
+
+    m) --- NODI SUCCESSIVI E PRECEDENTI DI UN CERTO VERTICE ---
+
+4) Ricorsione
+    --- CONTROLLER GESTIONE RICORSIONE ---
+
+    -- MODEL --
+        a) --- MASSIMIZZARE LA DISTANZA ---
+           --- ARCHI DI PESO SEMPRE CRESCENTE ---
+           --- PERCORSO SEMPLICE ---
+
+        b) --- PERCORSO CHIUSO CON VERTICI NON RIPETUTI ---
+           --- VALORE DI INPUT LIMITE N° ARCHI ---
+           --- SOMMA PESI SU ARCHI MASSIMA ---
+
+        c) --- ARCHI DI PESO CRESCENTE ---
+           --- PERCORSO PIU LUNGO PER NUMERO DI ARCHI ---
+
+        d) --- MASSIMIZZARE SOMMA PESI ARCHI CON MAX NODI ---
+
+        e) --- CAMMINO SEMPLICE ---
+           --- TOCCHI MAGGIOR NUMERO DI NODI ---
+           --- NON PASSA PER NODI CHE HANNO UN CERTO NOME IN STRINGA ---
+
+        f) --- INCLUDA SOLO NODI NI STESSA COMPONENTE CONNESSA ---
+           --- INCLUDA MAGGIOR NUMERO DI NODI POSSIBILE ---
+           --- SOMMA DURATA NON SUPERIORE AD UN VALORE IN INPUT ---
+

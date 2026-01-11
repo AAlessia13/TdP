@@ -1,9 +1,9 @@
 import copy
 import time
-
 import networkx as nx
 
 from Classroom.FlightDelays.database.DAO import DAO
+
 class Model:
     def __init__(self):
         self._airports = DAO.getAllAirports()

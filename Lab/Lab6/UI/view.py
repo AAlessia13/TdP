@@ -22,6 +22,7 @@ class View(ft.UserControl):
     def load_interface(self):
         # title
         self._title = ft.Text("Analizza Vendite", color="blue", size=24)
+
         self.dd_anno = ft.Dropdown(width=200, label="Anno", options=[ft.dropdown.Option("Nessun filtro")])
         self.controller.loadYears(self.dd_anno)
 
@@ -39,6 +40,7 @@ class View(ft.UserControl):
 
         self.lv = ft.ListView()
         self._page.add(self._title, self.row1, self.row2, self.lv)
+
     @property
     def controller(self):
         return self._controller

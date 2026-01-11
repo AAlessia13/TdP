@@ -11,6 +11,7 @@ class Controller:
         self._view = view
         # the model, which implements the logic of the program and holds the data
         self._model = model
+
         self._listYear = []
         self._listColor = []
 
@@ -62,23 +63,17 @@ class Controller:
 
                 self._view.txtOut.controls.append(ft.Text(f"I nodi ripetuti sono {[num for num in ripetuti]}"))
 
-
-
         self.fillDDProduct()
-
         self._view.update_page()
 
 
-
+    # Riempio la tendina con un nodo (DTO)
     def fillDDProduct(self):
         self._view._ddnode.options.clear()
         for node in self._model._graph.nodes:
             self._view._ddnode.options.append(ft.dropdown.Option(text=node.Product_number,
                                                                  data=node,
                                                                  on_click=self.readProduct))
-
-
-
     def readProduct(self,e):
         if e.control.data is None:
             self._productDD = None

@@ -1,0 +1,58 @@
+--- RIEMPIRE IL DROPDOWN YEAR-SHAPE ---
+
+
+CONTROLLER:
+
+    def fillDDYear(self):
+        years = self._model.getYears()
+        for year in years:
+            self._view.ddyear.options.append(ft.dropdown.Option(year))
+        self._view.update_page()
+
+    def fillDDShapes(self,e):
+
+        self._view.ddshape.options.clear()
+        shapes = self._model.getShapes(self._view.ddyear.value)
+        for shape in shapes:
+            self._view.ddshape.options.append(ft.dropdown.Option(shape))
+        self._view.update_page()
+
+VIEW:
+
+self.ddyear = ft.Dropdown(label="Anno",
+                                  hint_text="Anno da analizzare per gli avvistamenti.",
+                                  on_change=self._controller.fillDDShapes)
+        self._controller.fillDDYear()
+        self.ddshape = ft.Dropdown(label="Shape",
+                                   hint_text="Shape da analizzare per gli avvistamenti.")
+
+
+--- RIEMPIRE IL DROPDOWN YEAR-STATE ---
+
+CONTROLLER:
+
+    def fillDDYears(self):
+        years = self._model.getYears()
+
+        for year in years:
+            self._view.ddyear.options.append(ft.dropdown.Option(year))
+
+        self._view.update_page()
+
+    def fillDDStates(self,e):
+        self._view.ddstate.options.clear()
+        states = self._model.getStates(self._view.ddyear.value)
+
+        for state in states:
+            self._view.ddstate.options.append(ft.dropdown.Option(state))
+
+        self._view.update_page()
+
+VIEW:
+
+  self.ddyear = ft.Dropdown(label="Anno",
+                                  hint_text="Anno da analizzare per gli avvistamenti.",
+                                  on_change=self._controller.fillDDStates)
+        self._controller.fillDDYears()
+        self.ddstate = ft.Dropdown(label="Stato",
+                                   hint_text="Stato da analizzare per gli avvistamenti.")

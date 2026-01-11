@@ -1,0 +1,332 @@
+--- CONTROLLER GESTIONE RICORSIONE ---
+
+
+
+ def handle_path(self, e):
+        self._view.txtOut2.controls.clear()
+        if len(self._model.graph.nodes) == 0:
+            self._view.txtOut2.controls.append(ft.Text("Creare un grafo!", color='red'))
+            self._view.update_page()
+            return
+        componenti = self._model.getPath()
+        if componenti:
+            self._view.txtOut2.controls.append(ft.Text(f"Distanza totale del percorso: {self._model._bestdTot}"))
+            for c in self._model.getPathDetails():
+                self._view.txtOut2.controls.append(ft.Text(f"{c[0]} --> {c[1]}: {c[2]}, distanza: {c[3]}km"))
+            self._view.update_page()
+            return
+        else:
+            self._view.txtOut2.controls.append(ft.Text("Errore durante l'analisi dei componenti!", color='red'))
+            self._view.update_page()
+            return
+
+
+
+
+--- MASSIMIZZARE LA DISTANZA ---
+--- ARCHI DI PESO SEMPRE CRESCENTE ---
+--- PERCORSO SEMPLICE ---
+
+Dato il grafo costruito al punto precedente, si vuole identificare un percorso semplice che massimizza la distanza tra
+stati con archi con peso sempre crescente.
+a. Alla pressione del bottone “Calcola percorso” avviare l’algoritmo di ricerca
+b. Stampare a video il percorso con peso di ogni arco e distanza geodesica tra i due stati
+c. Hint: Per il calcolo della massima distanza tra stati usare i campi “lat” e “lng” del db
+
+    def getPath(self):
+        # caching con variabili della classe (percorso migliore e peso maggiore)
+        self._bestComp = []
+        self._bestdTot = 0
+        # inizializzo il parziale con il nodo iniziale
+        parziale = []
+        for node in self.graph.nodes:
+            parziale.append(node)
+            self._ricorsionev2(parziale)
+            parziale.pop()
+        return self._bestComp
+
+    def ricorsione(self, parziale):
+        '''esploro tutti percorsi percorribili dal grafo,
+           salvo i migliori con le condizioni di terminazione'''
+
+        # verifico se soluzione è migliore di quella salvata in cache
+        if self.getScore(parziale) > self._bestdTot:
+            self._bestComp = copy.deepcopy(parziale)
+            self._bestdTot = self.getScore(parziale)
+
+            # verifico se posso aggiungere un altro elemento
+        listaVicini = []
+        for v in self.graph.neighbors(parziale[-1]):
+            edgeV = self.graph[parziale[-1]][v]['weight']
+            listaVicini.append((v, edgeV))
+
+        if len(parziale) == 1:
+            for v1 in listaVicini:
+                if v1[0] not in parziale: # perche deve essere semplice (no cicli)
+                    parziale.append(v1[0])
+                    self.ricorsione(parziale)
+                    parziale.pop()
+
+        else:
+            for v1 in listaVicini:
+
+
+
+                if v1[0] not in parziale and self.graph[parziale[-2]][parziale[-1]]['weight'] < v1[1]:
+                    parziale.append(v1[0])
+                    self.ricorsione(parziale)
+                    parziale.pop()
+
+   def _getScore(self, nodes):
+        score = 0
+        for i in range(0, len(nodes)-1):
+            score += distance.geodesic((nodes[i].Lat, nodes[i].Lng), (nodes[i+1].Lat, nodes[i+1].Lng)).km
+        return score
+
+    def getPathDetails(self):
+        result = []
+        for i in range(0, len(self._bestComp) - 1):
+            result.append((self._bestComp[i], self._bestComp[i+1], self.graph[self._bestComp[i]][self._bestComp[i+1]]['weight'], self._getScore([self._bestComp[i], self._bestComp[i+1]])))
+        return result
+
+
+--- PERCORSO CHIUSO CON VERTICI NON RIPETUTI ---
+--- VALORE DI INPUT LIMITE N° ARCHI ---
+--- SOMMA PESI SU ARCHI MASSIMA ---
+
+Dato il grafo costruito al punto precedente, si vuole identificare un percorso semplice e chiuso a peso massimo
+composto da esattamente N archi. Il valore di N deve essere inserito dall’utente tramite il campo apposito
+nell’interfaccia grafica. N deve essere almeno 2. A tal fine si identifichi la sequenza di vertici con le seguenti
+caratteristiche:
+Il primo e l’ultimo vertice della sequenza devono coincidere.
+ I vertici intermedi non devono essere ripetuti
+ La somma dei pesi degli archi percorsi deve essere massima.
+Si visualizzi:
+• La somma totale dei pesi degli archi percorsi nel percorso di peso massimo massimo
+• Il percorso trovato come sequenza di archi, ciascuno dei quali nella forma:
+Nome_Retailer_1 —> Nome_ Retailer_2 : peso_arco
+
+
+    def getPath(self, maxLen):
+        # caching con variabili della classe (percorso migliore e peso maggiore)
+        self._bestComp = []
+        self._bestLen = 0
+        # inizializzo il parziale con il nodo iniziale
+        parziale = []
+        for node in self.graph.nodes:
+            parziale.append(node)
+            self._ricorsionev2(parziale, maxLen)
+            parziale.pop()
+        return self._bestComp
+
+    def _ricorsionev2(self, parziale, maxLen):
+        # verifico se soluzione è migliore di quella salvata in cache
+        if len(parziale) - 1 == maxLen:
+            if parziale[0] == parziale[-1]:
+                if self._getScore(parziale) > self._bestLen:
+                    self._bestComp = copy.deepcopy(parziale)
+                    self._bestLen = self._getScore(parziale)
+            return
+        elif len(parziale) - 1 > maxLen:
+            return
+        # verifico se posso aggiungere un altro elemento
+        last_node = parziale[-1]
+        for a in self.graph.neighbors(last_node):
+            if len(parziale) == maxLen:
+                if a == parziale[0]:
+                    parziale.append(a)
+                    self._ricorsionev2(parziale, maxLen)
+                    parziale.pop()
+                elif parziale[0] not in self.graph.neighbors(last_node):
+                    return
+            if a not in parziale:
+                parziale.append(a)
+                self._ricorsionev2(parziale, maxLen)
+                parziale.pop()
+
+    def _getScore(self, nodes):
+        score = 0
+        for i in range(0, len(nodes) - 1):
+            score += self.graph[nodes[i]][nodes[i + 1]]['weight']
+        return score
+
+    def getPathDetails(self):
+        result = []
+        for i in range(0, len(self._bestComp) - 1):
+            result.append((self._bestComp[i], self._bestComp[i+1], self.graph[self._bestComp[i]][self._bestComp[i+1]]['weight']))
+        return result
+
+
+--- ARCHI DI PESO CRESCENTE ---
+--- PERCORSO PIU LUNGO PER NUMERO DI ARCHI ---
+
+
+Dato il grafo costruito al punto precedente, si vuole identificare un percorso su grafo tale per cui, dato un vertice di
+partenza (selezionato dall’apposita tendina), si identifichi il percorso più lungo in termini di numero di archi, composto
+da archi dal peso sempre crescente.
+
+ La valutazione della soluzione migliore è rappresentata dal numero di archi attraversati (senza considerare il
+relativo peso).
+ Un arco può essere aggiunto al percorso se e solo se il suo peso è maggiore uguale a tutti i pesi degli archi già
+aggiunti al percorso
+
+
+
+ def getPath(self, p0):
+        # caching con variabili della classe (percorso migliore e peso maggiore)
+        self._bestComp = []
+        self._bestdTot = 0
+        # inizializzo il parziale con il nodo iniziale
+        parziale = [p0]
+        # Avvio la ricorsione direttamente
+        self._ricorsionev2(parziale)
+        return self._bestComp
+
+    def _ricorsionev2(self, parziale):
+        # verifico se soluzione è migliore di quella salvata in cache
+        if len(parziale) - 1 > self._bestdTot:
+            # se lo è aggiorno i valori migliori
+            self._bestComp = copy.deepcopy(parziale)
+            self._bestdTot = len(parziale) - 1
+
+        # verifico se posso aggiungere un altro elemento
+        last_node = parziale[-1]
+        for a in self.graph.neighbors(last_node):
+            if a not in parziale:
+                # Controllo del peso dell'arco
+                if len(parziale) == 1 or self.graph[last_node][a]["weight"] >= self.graph[parziale[-2]][last_node]["weight"]:
+                    parziale.append(a)
+                    print(parziale)
+                    self._ricorsionev2(parziale)
+                    parziale.pop()
+
+
+
+--- MASSIMIZZARE SOMMA PESI ARCHI CON MAX NODI ---
+
+
+Permettere all’utente di selezionare da un menu a tendina un aeroporto di destinazione a2, e un numero
+massimo di tratte t che è disposto a percorrere.
+b. Alla pressione del bottone “Cerca itinerario”, sviluppare un algoritmo ricorsivo agente sul grafo creato al
+punto 1 per cercare l’itinerario di viaggio tra a1 e a2 che massimizzi il numero totale di voli per ciascuna
+delle tratte del percorso selezionato (in altre parole, il percorso che massimizzi la somma dei pesi degli archi
+attraversati), utilizzando al massimo t tratte.
+c. Al termine della ricerca, il programma dovrà stampare l’itinerario, indicando gli aeroporti visitati, e il numero
+totale di voli disponibili sul percorso
+
+
+
+   def getPath(self, maxLen, a0, af):
+        # caching con variabili della classe (percorso migliore e peso maggiore)
+        self._bestComp = []
+        self._bestLen = 0
+        # inizializzo il parziale con il nodo iniziale
+        parziale = [a0]
+        self._ricorsionev2(parziale, maxLen, af)
+        return self._bestComp
+
+    def _ricorsionev2(self, parziale, maxLen, af):
+        # verifico se soluzione è migliore di quella salvata in cache
+        if len(parziale) <= maxLen and self._getScore(parziale) > self._bestLen:
+            if parziale[-1] == af:
+                # se lo è aggiorno i valori migliori
+                self._bestComp = copy.deepcopy(parziale)
+                self._bestLen = self._getScore(parziale)
+        if len(parziale) > maxLen or (parziale[-1] == af and self._getScore(parziale) < self._bestLen):
+            return
+        # verifico se posso aggiungere un altro elemento
+        for a in self.graph.neighbors(parziale[-1]):
+            if a not in parziale:
+                parziale.append(a)
+                self._ricorsionev2(parziale, maxLen, af)
+                parziale.pop()  # rimuovo l'ultimo elemento aggiunto: backtracking
+
+    def _getScore(self, nodes):
+        score = 0
+        for i in range(0, len(nodes)-1):
+            score += self.graph[nodes[i]][nodes[i+1]]['weight']
+        return score
+
+
+--- CAMMINO SEMPLICE ---
+--- TOCCHI MAGGIOR NUMERO DI NODI ---
+--- NON PASSA PER NODI CHE HANNO UN CERTO NOME IN STRINGA ---
+
+
+Permettere all’utente di selezionare una località target (t) e di inserire una stringa s (non vuota). Alla pressione del
+bottone “Calcola Percorso”, trovare (se esiste), un cammino aciclico semplice che abbia le seguenti caratteristiche:
+• inizi da una delle località calcolate al punto 1d (scelta in modo casuale) e termini in t;
+• tocchi il maggior numero di località;
+• non passi per località il cui nome contenga la sottostringa s.
+
+
+    def getPath(self, l0, s):
+        # caching con variabili della classe (percorso migliore e peso maggiore)
+        self._bestComp = []
+        start = self.locations[random.randint(0, len(self.locations)-1)]
+        # inizializzo il parziale con il nodo iniziale
+        parziale = [start]
+        self._ricorsionev2(parziale, l0, s)
+        return self._bestComp
+
+    def _ricorsionev2(self, parziale, l0, s):
+        # verifico se soluzione è migliore di quella salvata in cache
+        if parziale[-1] == l0:
+            if len(parziale) > len(self._bestComp):
+
+                self._bestComp = copy.deepcopy(parziale)
+            return
+        for l in self.graph.neighbors(parziale[-1]):
+            if l not in parziale and s.lower() not in l.Location.lower():
+                parziale.append(l)
+                self._ricorsionev2(parziale, l0, s)
+                parziale.pop()  # rimuovo l'ultimo elemento aggiunto: backtracking
+
+
+--- INCLUDA SOLO NODI NI STESSA COMPONENTE CONNESSA ---
+--- INCLUDA MAGGIOR NUMERO DI NODI POSSIBILE ---
+--- SOMMA DURATA NON SUPERIORE AD UN VALORE IN INPUT ---
+
+
+Permettere all’utente di inserire una durata complessiva dTOT, espressa in minuti. Alla pressione del bottone “Set di
+Album”, utilizzare un algoritmo ricorsivo per estrarre un set di album dal grafo che abbia le seguenti caratteristiche:
+• includa a1;
+• includa solo album appartenenti alla stessa componente connessa di a1;
+• includa il maggior numero possibile di album;
+• abbia una durata complessiva, definita come la somma della durata degli album in esso contenuti, non
+superiore dTOT
+
+
+ def getPath(self, a0, dTot):
+        # caching con variabili della classe (percorso migliore e peso maggiore)
+        self._bestComp = []
+        self._bestdTot = 0
+        # inizializzo il parziale con il nodo iniziale
+        parziale = [a0]
+        comp = nx.node_connected_component(self.graph, a0)
+        for a in comp:
+            if a not in parziale and (self._getScore(parziale) + a.durata_totale) < dTot:
+                parziale.append(a)
+                self._ricorsionev2(parziale, dTot)
+                parziale.pop()  # rimuovo l'ultimo elemento aggiunto: backtracking
+        return self._bestComp
+
+    def _ricorsionev2(self, parziale, dTot):
+        # verifico se soluzione è migliore di quella salvata in cache
+        if len(parziale) > len(self._bestComp) and self._getScore(parziale) < dTot:
+            # se lo è aggiorno i valori migliori
+            self._bestComp = copy.deepcopy(parziale)
+            self._bestdTot = self._getScore(parziale)
+        # verifico se posso aggiungere un altro elemento
+        comp = nx.node_connected_component(self.graph, parziale[0])
+        for a in comp:
+            if a not in parziale and (self._getScore(parziale) + a.durata_totale) < dTot:
+                parziale.append(a)
+                self._ricorsionev2(parziale, dTot)
+                parziale.pop()  # rimuovo l'ultimo elemento aggiunto: backtracking
+
+    def _getScore(self, listOfNodes):
+        durata = 0
+        for a in listOfNodes:
+            durata += a.durata_totale
+        return durata

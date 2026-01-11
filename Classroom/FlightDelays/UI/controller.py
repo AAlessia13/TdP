@@ -10,6 +10,7 @@ class Controller:
         self._view = view
         # the model, which implements the logic of the program and holds the data
         self._model = model
+
         self._choiceAeroportoP = None
         self._choiceAeroportoA = None
 

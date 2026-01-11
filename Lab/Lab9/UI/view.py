@@ -1,11 +1,9 @@
 import flet as ft
 
-
 class View(ft.UserControl):
     def __init__(self, page: ft.Page):
         super().__init__()
         # page stuff
-
         self._page = page
         self._page.title = "TdP Lab 09"
         self._page.horizontal_alignment = 'CENTER'
@@ -23,7 +21,7 @@ class View(ft.UserControl):
         self._title = ft.Text("Flights Manager", color="blue", size=24)
         self._page.controls.append(self._title)
 
-        #ROW with  controls
+        #ROW with controls
         self._txtIn = ft.TextField(label="Distanza Minima")
         self._btnAnalizza = ft.ElevatedButton(text="Analizza Aeroporti", on_click=self._controller.handleAnalizza)
         row1 = ft.Row([self._txtIn, self._btnAnalizza],

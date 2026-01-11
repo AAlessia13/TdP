@@ -1,0 +1,5 @@
+Prima riempire le tendine e poi costruire il grafo
+
+1) Inserimento dati nelle tendine
+
+2) Costruzione grafo

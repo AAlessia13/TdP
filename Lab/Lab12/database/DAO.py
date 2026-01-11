@@ -1,6 +1,7 @@
 from Lab.Lab12.database.DB_connect import DBConnect
 from Lab.Lab12.model.retailer import Retailer
 from Lab.Lab12.model.connessione import Connessione
+
 class DAO():
     def __init__(self):
         pass

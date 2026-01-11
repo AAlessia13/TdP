@@ -21,6 +21,7 @@ class View(ft.UserControl):
         """Function that loads the graphical elements of the view"""
         # title
         self._title = ft.Text("App Gestione Studenti", color="blue", size=24)
+
         # Row 1
         self._dd = ft.Dropdown(width=550, label="Seleziona un corso")
         self._controller.aggiungiCorsi(self._dd)
