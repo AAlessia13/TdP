@@ -1,6 +1,5 @@
 --- RIEMPIRE IL DROPDOWN YEAR-SHAPE ---
 
-
 CONTROLLER:
 
     def fillDDYear(self):
@@ -10,7 +9,6 @@ CONTROLLER:
         self._view.update_page()
 
     def fillDDShapes(self,e):
-
         self._view.ddshape.options.clear()
         shapes = self._model.getShapes(self._view.ddyear.value)
         for shape in shapes:

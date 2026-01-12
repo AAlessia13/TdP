@@ -4,6 +4,7 @@ from Lab.Lab11.database.DAO import DAO
 class Model:
     def __init__(self):
         self._graph = nx.Graph()
+
         self._products = DAO.getProducts()
         self._mapProducts = {}
         for p in self._products:

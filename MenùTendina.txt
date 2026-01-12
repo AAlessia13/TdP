@@ -1,5 +1,152 @@
-Prima riempire le tendine e poi costruire il grafo
+Nel caso in cui venga richiesto di permettere all'utente di selezionare x da un
+apposito menù a tendina: prima riempire le tendine e poi costruire il grafo
+--- Guardare Lab 11/12 --
 
 1) Inserimento dati nelle tendine
 
+        # DAO
+        @staticmethod
+        def getColors():
+            conn = DBConnect.get_connection()
+            result = []
+            cursor = conn.cursor(dictionary=True)
+            query = """ select distinct gp.Product_color
+                    from go_products gp """
+            cursor.execute(query)
+            for row in cursor:
+                result.append(row["Product_color"])
+            cursor.close()
+            conn.close()
+            return result
+
+        # Model
+        def getColors(self):
+            colors = DAO.getColors()
+            return colors
+
+        # Controller
+        def fillDD(self):
+            # se gli anno entro cui stare vengono specificati dalla consegna
+            # non c'è bisogno di chiederli al database
+            self._view._ddyear.options.append(ft.dropdown.Option("2015"))
+            self._view._ddyear.options.append(ft.dropdown.Option("2016"))
+            self._view._ddyear.options.append(ft.dropdown.Option("2017"))
+            self._view._ddyear.options.append(ft.dropdown.Option("2018"))
+
+        colors = self._model.getColors()
+        for color in colors:
+            self._view._ddcolor.options.append(ft.dropdown.Option(color))
+
+        # View
+        self._ddyear = ft.Dropdown(label="Anno")
+        self._ddcolor = ft.Dropdown(label="Colore")
+        self._controller.fillDD()
+
 2) Costruzione grafo
+
+        # DAO
+        @staticmethod
+        def getProducts():
+            conn = DBConnect.get_connection()
+            result = []
+            cursor = conn.cursor(dictionary=True)
+            query = """ select *
+                    from go_products gp """
+            cursor.execute(query)
+            for row in cursor:
+                result.append(Product(**row))
+            cursor.close()
+            conn.close()
+            return result
+
+        @staticmethod
+        def getEdgeWeight(anno, codiceProd1, codiceProd2):
+            conn = DBConnect.get_connection()
+
+            result = []
+
+            cursor = conn.cursor()
+            query = """ select count(distinct gds2.`Date`) as peso
+                        from go_daily_sales gds, go_daily_sales gds2
+                        where year (gds2.`Date`) = %s
+                        and gds2.`Date` = gds.`Date`
+                        and gds2.Retailer_code = gds.Retailer_code
+                        and gds2.Product_number = %s
+                        and gds.Product_number = %s"""
+
+            cursor.execute(query,(anno,codiceProd1, codiceProd2))
+            for row in cursor:
+                res = row[0]
+
+            cursor.close()
+            conn.close()
+            return res
+
+
+        # Model
+        class Model:
+        def __init__(self):
+            self._graph = nx.Graph()
+
+            self._products = DAO.getProducts()
+            self._mapProducts = {}
+            for p in self._products:
+                self._mapProducts[p.Product_number] = p
+
+        def buildGraph(self, anno, color):
+            self._graph.clear()
+
+            # vincolo nodi preso dalla tendina
+            for p in self._products:
+                if p.Product_color == color:
+                    self._graph.add_node(p)
+
+            # vincolo archi preso dalla tendina
+            for node in self._graph.nodes:
+                for node2 in self._graph.nodes:
+                    if node2 != node and not self._graph.has_edge(node,node2):
+                        peso = DAO.getEdgeWeight(anno, node.Product_number, node2.Product_number)
+                        if peso!=0:
+                            self._graph.add_edge(node, node2, weight=peso)
+
+
+        # Controller
+        def handle_graph(self, e):
+            self._view.txtOut.controls.clear()
+            anno = self._view._ddyear.value
+            color = self._view._ddcolor.value
+        if anno is None or color is None:
+            self._view.txtOut.controls.append(ft.Text("Devi selezionare un anno e un colore dal menù a tendina!"))
+        else:
+            self._model.buildGraph(anno, color)
+            self._view.txtOut.controls.append(ft.Text(f"Numero di vertici: {self._model.getNumNodes()}"))
+            self._view.txtOut.controls.append(ft.Text(f"Numero di archi: {self._model.getNumEdges()}"))
+
+                        # Model
+                        def getNumEdges(self):
+                            return len(self._graph.edges)
+
+                        def getNumNodes(self):
+                            return len(self._graph.nodes)
+
+        self._view.update_page()
+
+        """
+        def handle_graph(self, e):
+            self._view.txt_result.controls.clear()
+            try:
+                year = int(self._view.ddyear.value)
+                country = self._view.ddcountry.value
+                nodi, archi = self._model.createGraph(year, country)
+                self._view.txt_result.controls.append(ft.Text(f"Numero di nodi: {nodi}"))
+                self._view.txt_result.controls.append(ft.Text(f"Numero di archi: {archi}"))
+
+            except ValueError:
+                self._view.txt_result.controls.append(ft.Text("L'anno selezionato non risulta valido!"))
+
+            self._view.update_page()
+        """
+
+        # View
+        self.btn_graph = ft.ElevatedButton(text="Crea Grafo", on_click=self._controller.handle_graph)
+        self.txtOut = ft.ListView(expand=1, spacing=10, padding=10, auto_scroll=True)

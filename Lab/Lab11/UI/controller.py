@@ -15,7 +15,6 @@ class Controller:
         self._listYear = []
         self._listColor = []
 
-
     def fillDD(self):
         self._view._ddyear.options.append(ft.dropdown.Option("2015"))
         self._view._ddyear.options.append(ft.dropdown.Option("2016"))
@@ -25,8 +24,6 @@ class Controller:
         colors = self._model.getColors()
         for color in colors:
             self._view._ddcolor.options.append(ft.dropdown.Option(color))
-
-
 
     def handle_graph(self, e):
         self._view.txtOut.controls.clear()

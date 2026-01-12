@@ -11,6 +11,7 @@
 
         edges = DAO.getAllEdges(year,shape,self._idMap)
 
+        --
         for edge in edges:
             if self._grafo.has_edge(edge.s1,edge.s2):
                 return
@@ -39,7 +40,7 @@
     def buildGraph(self,year: int,shape: str):
         self._grafo.clear()
         self._nodes = DAO.getAllNodes(year,shape)
-        print( self._nodes)
+        print(self._nodes)
 
         self._grafo.add_nodes_from( self._nodes)
 
