@@ -1,0 +1,75 @@
+Query
+--- 2016 --- SIMULAZIONE
+Tendina : "L’utente seleziona dal corrispondente menù a tendina l’anno di una stagione
+(tabella seasons) in cui si sia disputato un campionato."
+
+Nodi: "I vertici sono i PILOTI che hanno partecipato alle gare considerate (year)
+ed hanno tagliato il traguardo (si ignorino quindi i piloti che non hanno terminato la gara)."
+
+Archi: "Un arco orientato rappresenta la vittoria di un pilota su un altro, con peso pari al numero
+di gare in cui tale vittoria si è verificata."
+--------------------------------------------------------------------------------------------------------
+--- 2017 ---
+Tendina: "Permettere all’utente di selezionare una stagione attraverso l’apposito menu a tendina."
+
+Nodi: " I vertici del grafo rappresentano le GARE disputate nella stagione selezionata"
+
+Archi: "Gli archi del grafo sono non orientati e pesati, ed il peso rappresenta il numero di piloti
+che hanno corso in entrambe le gare adiacenti all’arco, e che sono giunti al traguardo
+(cioè results.statusId=1)."
+
+--------------------------------------------------------------------------------------------------------
+--- 2025 ---
+Tendina: "L’utente seleziona da due menù a tendina due anni che definiscono un range di interesse. I menù
+dovranno essere riempiti interrogando il database per ottenere gli anni in cui è stato disputato il
+campionato. "
+
+Nodi: "I nodi sono costituiti da tutti i circuiti su cui è mai stato disputato un gran premio di F1
+indipendentemente dagli anni selezionati. Per ogni circuito, si salvi all’interno del nodo:
+i) le proprietà del circuito (colonne della tabella circuits); : DTO
+ii) i risultati dei gran premi tenuti in tale circuito negli anni selezionati (estremi inclusi).
+Per questa seconda richiesta, si suggerisce di utilizzare un ulteriore campo nella definizione della dataclass
+Circuito, che contiene un dizionario le cui chiavi sono gli anni in cui il circuito ha effettivamente ospitato la
+Formula1 (nel range selezionato) e come valori una lista contenente i piazzamenti dei vari piloti nella gara
+considerata (anno, circuito), ottenuti dalla tabella results (campi driverId e position). Tali piazzamenti
+possono essere comodamente rappresentati come una lista di tuple oppure (preferibilmente) come una lista
+di oggetti appositamente definiti per rappresentare l’id del pilota e la sua posizione nella gara. N.B. Si
+consiglia di approcciare questo punto con una soluzione in due step: una query per i circuiti, e
+successivamente una query (per nodo) per ottenere i dettagli dei piazzamenti."
+
+Archi: "Due nodi sono connessi da un arco se e solo se entrambi i circuiti hanno ospitato la Formula1 almeno per un
+anno nel range selezionato. Nel caso in cui un circuito non ha ospitato la Formula1 negli anni selezionati,
+quel nodo deve rimanere isolato. Il peso dell’arco è pari alla somma del numero di piloti che hanno
+correttamente tagliato il traguardo nei vari anni per i due circuiti collegati (per verificare se un pilota ha
+tagliato il traguardo si consideri il campo position della tabella results. Se tale valore è Null, vuol dire che il
+pilota si è ritirato oppure è stato squalificato, e non va considerato nel computo del peso dell’arco)."
+--------------------------------------------------------------------------------------------------------
+
+Query 1 – Piloti che hanno corso tutte le gare di una stagione
+SELECT driverId
+FROM results res
+JOIN races r ON res.raceId = r.raceId
+WHERE r.year = ?
+GROUP BY driverId
+HAVING COUNT(DISTINCT r.raceId) =
+    (SELECT COUNT(*) FROM races WHERE year = ?)
+
+Query 2 – Gare con più ritiri
+SELECT r.name, COUNT(*) AS ritiri
+FROM races r, results res
+WHERE r.raceId = res.raceId
+    AND res.position IS NULL
+GROUP BY r.raceId
+ORDER BY ritiri DESC
+
+Query 3 – Piloti comuni a due stagioni
+SELECT DISTINCT r1.driverId
+FROM results r1, races a,
+     results r2, races b
+WHERE r1.raceId = a.raceId
+  AND r2.raceId = b.raceId
+  AND a.year = ?
+  AND b.year = ?
+  AND r1.driverId = r2.driverId
+
+
