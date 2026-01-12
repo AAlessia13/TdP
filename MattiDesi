@@ -1,6 +1,3 @@
-- query.txt : dare un occhio ma adattare al DB Formula1
-- DAO.txt: struttura dao + ulteriori query
-
 1) Menù a tendina (fillDD.txt)
     a) --- RIEMPIRE IL DROPDOWN YEAR-SHAPE ---
     b) --- RIEMPIRE IL DROPDOWN YEAR-STATE ---

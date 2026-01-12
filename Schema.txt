@@ -1,7 +1,7 @@
-Studio del Database (Formula1) : ore 18
-    a) importare il DB in DBeaver --> lunedì mattina, lab politecnico capire come fare
-    b) guardare tabelle, chiavi primarie ed esterne --> pre esame (a casa)
-    c) capire cosa rappresentano gli oggetti e che relazione hanno --> pre esame (a casa)
+Studio del Database (Formula1)
+    a) importare il DB in DBeaver
+    b) guardare tabelle, chiavi primarie ed esterne
+    c) capire cosa rappresentano gli oggetti e che relazione hanno
 -------------------------------------------------------------------------------------------
 Capire quali entità diventano nodi del grafo e quali diventano archi
 
@@ -45,7 +45,7 @@ Prima si scrive la query SU DBeaver, poi la si copia nel DAO
 
 2) DTO = NODI
 Nella cartella model si creano delle classi semplicissime: niente logica/query, solo dati
-Il tipo di dato per ogni attributo della classe si vede da DBeaver --> pre esame (a casa)
+Il tipo di dato per ogni attributo della classe si vede da DBeaver
 
         from dataclasses import dataclass
         @dataclass
